@@ -1,12 +1,8 @@
 import numpy as np
 import pytest
 
-from evolution.population import Population
 from evolution.game import TicTacToe
 from evolution.player import ModelBasedPlayer, StrategyFunctionPlayer
-
-
-
 
 def always_middle_square_player():
     return StrategyFunctionPlayer(board_dims=(3,3), move_fn=lambda _: (1,1))
@@ -25,10 +21,7 @@ def first_open_square_player():
 def test_illegal_move_penalized_1():
     game = TicTacToe([always_middle_square_player(), first_open_square_player()], board_dims=(3,3))
     game_rewards = game.play()
-    try:
-        assert(game_rewards == [-1, 0])
-    except:
-        import pdb; pdb.set_trace()
+    assert(game_rewards == [-1, 0])
     assert(game.moves_played == 2)
 
 def test_illegal_move_penalized_2():

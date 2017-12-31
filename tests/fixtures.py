@@ -2,6 +2,10 @@ import keras
 from keras.models import Model
 from keras.layers import *
 
+from evolution.game import GameMaker, TicTacToe
+
+TicTacToeMaker = GameMaker(TicTacToe, board_dims=(3,3))
+
 def get_example_model(board_dims=[3, 3], n_players=2):
     input_board = Input(board_dims + [n_players])
     flattened_input = Flatten()(input_board)

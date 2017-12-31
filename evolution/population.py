@@ -5,15 +5,12 @@ from .game import TicTacToe
 from .player import ModelBasedPlayer
 
 
-
-
 class Population:
-    def __init__(self, pop_size, model, board_dims, n_players_per_game=2, rand_level=1, evolution_lr=0.01):
-        # todo: constructor should accept a Game Factory rather than board_dims and n_players_per_game
+    def __init__(self, pop_size, model, game_maker, rand_level=1, evolution_lr=0.01):
+        # todo: constructor should accept a Game Factory rather than board_dims
         self.pop_size = pop_size
         self.model = model
-        self.board_dims = board_dims
-        self.n_players_per_game = n_players_per_game
+        self.game_maker = game_maker
         self.rand_level = rand_level
         self.evolution_lr = evolution_lr
         self.layer_shapes = [layer.shape for layer in self.model.get_weights()]
@@ -26,9 +23,10 @@ class Population:
             #TODO run round robin tournament
             pass
         else:
-            rewards = np.array([sum(TicTacToe([player, opponent], self.board_dims).play()[0] for _ in range(games_per_matchup)
-                                                                                              for opponent in opponents)
-                                                                                              for player in self.players])
+            # The [0] in line below pulls out score for first player, which is assumed to be one we're interested in
+            rewards = np.array([sum(self.game_maker.make_game([player, opponent]).play()[0] for _ in range(games_per_matchup)
+                                                                                            for opponent in opponents)
+                                                                                            for player in self.players])
             return(rewards)
 
     def _normalize_scores(self, scores):
