@@ -4,6 +4,7 @@ from keras.layers import *
 
 from evolution.game import GameMaker, TicTacToe
 
+SmallTicTacToeMaker = GameMaker(TicTacToe, board_dims=(2,2))
 TicTacToeMaker = GameMaker(TicTacToe, board_dims=(3,3))
 
 def get_example_model(board_dims=[3, 3], n_players=2):

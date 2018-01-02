@@ -1,3 +1,4 @@
+import itertools
 import numpy as np
 
 from copy import copy
@@ -6,7 +7,7 @@ from .player import ModelBasedPlayer
 
 
 class Population:
-    def __init__(self, pop_size, model, game_maker, rand_level=1, evolution_lr=0.01):
+    def __init__(self, pop_size, model, game_maker, rand_level=.05, evolution_lr=.1):
         # todo: constructor should accept a Game Factory rather than board_dims
         self.pop_size = pop_size
         self.model = model
@@ -17,27 +18,37 @@ class Population:
         self.n_parameters = sum(layer.size for layer in self.model.get_weights())
         self.weights_centers = np.zeros(self.n_parameters)
         self._create_players()
+        self.generation_num = 1
+        self.prev_gen_scores = None
 
-    def get_scores(self, opponents=None, games_per_matchup=1):
-        if opponents == None:
-            #TODO run round robin tournament
-            pass
+    def get_scores(self, opponents='self_play', games_per_matchup=1):
+        if opponents == 'self_play':
+            matchups_by_index = itertools.combinations(range(self.pop_size), self.game_maker.n_players_per_game)
+            rewards = np.zeros(self.pop_size)
+            for player_indices in matchups_by_index:
+                matchup_players = [self.players[i] for i in player_indices]
+                for _ in range(games_per_matchup):
+                    game_rewards = self.game_maker.make_game(matchup_players).play()
+                    for i, player_id in enumerate(player_indices):
+                        rewards[player_id] += game_rewards[i]
         else:
             # The [0] in line below pulls out score for first player, which is assumed to be one we're interested in
             rewards = np.array([sum(self.game_maker.make_game([player, opponent]).play()[0] for _ in range(games_per_matchup)
                                                                                             for opponent in opponents)
                                                                                             for player in self.players])
-            return(rewards)
+        return(rewards)
 
     def _normalize_scores(self, scores):
-        return (scores-scores.mean()) / scores.std()
+        # Add small number to scores.std in case all scores are equal
+        return (scores-scores.mean()) / (scores.std() + 1e-2)
 
-    def score_and_evolve(self, opponents=None, games_per_matchup=5):
-        scores = self.get_scores(opponents, games_per_matchup)
-        normalized_scores = self._normalize_scores(scores)
+    def score_and_evolve(self, opponents='self_play', games_per_matchup=1):
+        self.prev_gen_scores = self.get_scores(opponents, games_per_matchup)
+        normalized_scores = self._normalize_scores(self.prev_gen_scores)
         weight_updates = self.evolution_lr / (self.pop_size * self.rand_level) * np.dot(self.weight_deviations.T, normalized_scores)
         self.weights_centers += weight_updates
         self._create_players()
+        self.generation_num += 1
 
     def _create_players(self):
         # TODO: Clean-up for readability (remove for loop?)

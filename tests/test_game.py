@@ -36,3 +36,8 @@ def test_win_diag():
     assert(game_rewards == [1, -1])
     assert(game.moves_played == 7)
 
+def test_win_column_small():
+    game = TicTacToe([first_open_square_player(), first_open_square_player()], board_dims=(2, 2))
+    game_rewards = game.play()
+    assert(game_rewards == [1, -1])
+    assert(game.moves_played == 3)

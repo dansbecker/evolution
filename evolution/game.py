@@ -25,6 +25,7 @@ class BoardGame:
                     return rewards
         return(rewards)
 
+
 class TicTacToe(BoardGame):
     def _check_for_win(self, player_id):
         for row in range(self.board_storage_dims[0]):
@@ -50,9 +51,13 @@ class TicTacToe(BoardGame):
     def _check_move_legality(self, move):
         return (self.board[move[0], move[1], :] == 0).all()
 
+
 class GameMaker:
-    def __init__(self, game_class, board_dims):
+    def __init__(self, game_class, board_dims, n_players_per_game=2):
         self.game_class = game_class
         self.board_dims = board_dims
+        self.n_players_per_game = n_players_per_game
+
     def make_game(self, players):
         return self.game_class(players, self.board_dims)
+
