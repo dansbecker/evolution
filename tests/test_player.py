@@ -8,7 +8,7 @@ from fixtures import get_example_model, TicTacToeMaker
 
 def test_moves_right_dims():
     n_players_per_game=2
-    #todo: test a range of board sizes, requires being able to tie model shape to game board shape
+    # todo: test a range of board sizes, requires being able to tie model shape to game board shape
     for board_size in [3]:
         board_dims = (board_size, board_size)
         board_storage_dims = list(board_dims) + [n_players_per_game]

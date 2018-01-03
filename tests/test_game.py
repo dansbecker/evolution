@@ -41,3 +41,37 @@ def test_win_column_small():
     game_rewards = game.play()
     assert(game_rewards == [1, -1])
     assert(game.moves_played == 3)
+
+def test_moves_possible():
+    game1 = TicTacToe([first_open_square_player(), first_open_square_player()], board_dims=(2, 2))
+    game1.board[0,0,0] = 1
+    assert(game1.moves_possible())
+    game1.board[0, 1, 1] = 1
+    assert (game1.moves_possible())
+    game1.board[1,0,0] = 1
+    assert (game1.moves_possible())
+    game1.board[1,1,1] = 1
+    assert (not game1.moves_possible())
+    game2 = TicTacToe([first_open_square_player(), first_open_square_player()], board_dims=(3, 3))
+    game2.board[0:2,0,0] = 1
+    game2.board[0:2, 1, 1] = 1
+    assert (game2.moves_possible())
+    game2.board[0:2, 2, 1] = 1
+    assert (game2.moves_possible())
+    game2.board[2, :, 1] = 1
+    assert (not game2.moves_possible())
+    game3 = TicTacToe([first_open_square_player(), first_open_square_player()], board_dims=(4, 4))
+    game3.board[0:3, 0, 1] = 1
+    game3.board[0:3, 1, 1] = 1
+    assert (game3.moves_possible())
+
+def test_check_move_legality():
+    game = TicTacToe([first_open_square_player(), first_open_square_player()], board_dims=(3, 3))
+    game.board[0,0,0] = 1
+    game.board[1,1,1] = 1
+    game.board[2,0,0] = 1
+    assert (not game._check_move_legality((0,0)))
+    assert (game._check_move_legality((0, 1)))
+    assert (game._check_move_legality((1, 0)))
+    assert (not game._check_move_legality((2, 0)))
+    assert (game._check_move_legality((2, 2)))

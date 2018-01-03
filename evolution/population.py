@@ -8,7 +8,6 @@ from .player import ModelBasedPlayer
 
 class Population:
     def __init__(self, pop_size, model, game_maker, rand_level=.05, evolution_lr=.1):
-        # todo: constructor should accept a Game Factory rather than board_dims
         self.pop_size = pop_size
         self.model = model
         self.game_maker = game_maker

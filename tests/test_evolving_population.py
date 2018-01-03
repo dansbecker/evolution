@@ -1,7 +1,7 @@
 import pytest
 
 from evolution.population import Population
-from fixtures import get_example_model, TicTacToeMaker
+from fixtures import get_example_model, TicTacToeMaker, SmallTicTacToeMaker
 from numpy.random import seed
 
 from test_game import first_open_square_player, always_middle_square_player
