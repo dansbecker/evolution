@@ -5,7 +5,7 @@ from evolution.population import Population
 from keras.models import Model
 from keras.layers import Dense, Flatten, Input
 
-from numpy import mean
+from numpy import mean, inf
 
 
 
@@ -30,16 +30,17 @@ def first_open_square_player():
     return StrategyFunctionPlayer(board_dims=(3,3), move_fn=first_open_square_strat)
 
 if __name__ == "__main__":
-    for lr in [0.005, 0.02, 0.1, 0.5]:
-        for rand_level in [0.01, 0.05, 0.25, 1]:
-            for hidden_size in [8, 20, 200]:
+    for lr in [0.02, 0.1, 0.5, 2]:
+        for rand_level in [0.1, 0.3]:
+            for hidden_size in [12]:
                 TicTacToeMaker = GameMaker(TicTacToe, board_dims=(3, 3))
                 my_model = get_example_model(hidden_size=hidden_size)
-                my_pop = Population(50, model=my_model, game_maker=TicTacToeMaker, evolution_lr=lr, rand_level=rand_level)
-                rolling_scores = []
-                for i in range(176):
+                my_pop = Population(20, model=my_model, game_maker=TicTacToeMaker, evolution_lr=lr, rand_level=rand_level)
+                mean_scores_by_gen = []
+                best_recent_score = []
+                for i in range(151):
                     my_pop.score_and_evolve(opponents=[first_open_square_player()], games_per_matchup=2)
+                    best_recent_score.append(my_pop.prev_gen_scores.max())
                     rolling_scores.append(my_pop.prev_gen_scores.mean())
                     if i % 25 == 0:
-                        print("LR: " + str(lr) + "\t rand level: " + str(rand_level) + "\t hidden size: " + str(hidden_size)  + "\t Generations: " +str(i) + "\t Mean Recent Score: " + str(mean(rolling_scores)))
-                        rolling_scores = []
+                        print("LR: " + str(lr) + "\t rand level: " + str(rand_level) + "\t hidden size: " + str(hidden_size)  + "\t Generations: " +str(i) + "\t Mean Recent Scores: " +  str(mean(mean_scores_by_gen[-25:]))) + "\t Max score in last gen: " + str(best_recent_score[-1])
