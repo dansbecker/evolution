@@ -12,8 +12,7 @@ class StrategyFunctionPlayer(Player):
         self.move_fn = move_fn
         self.board_dims = board_dims
 
-    def get_move(self, board, player_id):
-        # TODO: Take advantage of player_id so player knows which player they are
+    def get_move(self, board):
         return self.move_fn(board)
 
 
@@ -35,8 +34,13 @@ class ModelBasedPlayer(Player):
         moves = tuple(arr[0] for arr in moves)
         return moves
 
-    def get_move(self, board, player_id):
-        # TODO: Take advantage of player_id so player knows which player they are
+    def get_move(self, board):
+        '''
+        Board should be manipulated beforehand so player does not need player_id (handed to player in a 'first-person' view) 
+        
+        :param board: numpy array defining current board position.
+        :return move: tuple describing what move to play 
+        '''
         move_probs = self._get_move_probs(board)
         move = self._simulate_move_from_distribs(move_probs)
         return move

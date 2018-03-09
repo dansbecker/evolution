@@ -1,5 +1,5 @@
 import numpy as np
-
+from time import time
 class BoardGame:
     def __init__(self, players, board_dims):
         self.players = players
@@ -14,7 +14,7 @@ class BoardGame:
         rewards = [0 for player in self.players]
         while self.moves_possible():
             for player_id, player in enumerate(self.players):
-                move = player.get_move(self.board, player_id)
+                move = player.get_move(self.get_player_specific_view(player_id))
                 if not self._check_move_legality(move):
                     rewards[player_id] = -1
                     return rewards
@@ -24,6 +24,9 @@ class BoardGame:
                     rewards[player_id] = 1
                     return rewards
         return(rewards)
+
+    def get_player_specific_view(self, player_id):
+        assert NotImplementedError()
 
 
 class TicTacToe(BoardGame):
@@ -50,6 +53,15 @@ class TicTacToe(BoardGame):
 
     def _check_move_legality(self, move):
         return (self.board[move[0], move[1], :] == 0).all()
+
+    def get_player_specific_view(self, player_id):
+        if player_id == 0:
+            return self.board
+        else:
+            assert (player_id == 1)
+            return self.board[:,:,[1,0]]
+
+
 
 
 class GameMaker:
