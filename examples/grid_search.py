@@ -30,12 +30,12 @@ def first_open_square_player():
     return StrategyFunctionPlayer(board_dims=(3,3), move_fn=first_open_square_strat)
 
 if __name__ == "__main__":
-    for lr in [0]:
+    for lr in [0.1]:
         for rand_level in [0.01, 0.1]:
-            for hidden_size in [10, 50]:
+            for hidden_size in [20]:
                 TicTacToeMaker = GameMaker(TicTacToe, board_dims=(3, 3))
                 my_model = get_example_model(hidden_size=hidden_size)
-                my_pop = Population(100, model=my_model, update_method='best',
+                my_pop = Population(100, model=my_model, update_method='grad',
                                     game_maker=TicTacToeMaker, evolution_lr=lr, rand_level=rand_level)
                 for i in range(51):
                     my_pop.score_and_evolve(opponents=[first_open_square_player()], games_per_matchup=10)
