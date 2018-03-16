@@ -2,7 +2,7 @@ from evolution.game import GameMaker, TicTacToe
 from evolution.player import StrategyFunctionPlayer
 from evolution.population import Population
 
-from keras.models import Model
+from keras.models import Model, load_model
 from keras.layers import Dense, Flatten, Input
 
 from numpy import mean, inf
@@ -44,28 +44,27 @@ def random_open_square_player():
     return StrategyFunctionPlayer(board_dims=example_dims, move_fn=random_open_square_strat)
 
 if __name__ == "__main__":
-    n_generations = 50
-    n_agents = 50
+    n_agents = 30
     games_per_matchup = 20
-    max_possible_score = games_per_matchup
+    model_fname = 'best_model_1.h5'
 
-    results = []
-    for lr in [0.5, 1, 2]:
-        for rand_level in [0.1, 0.5]:
-            for hidden_size in [25]:
-                TicTacToeMaker = GameMaker(TicTacToe, board_dims=example_dims)
-                my_model = get_example_model(hidden_size=hidden_size)
-                my_pop = Population(n_agents, model=my_model, update_method='grad',
-                                    game_maker=TicTacToeMaker, evolution_lr=lr, rand_level=rand_level)
-                for i in range(n_generations):
-                    if my_pop.prev_gen_scores is None or my_pop.prev_gen_scores.mean() < max_possible_score:
-                        my_pop.score_and_evolve(opponents=[random_open_square_player()],
-                                                games_per_matchup=games_per_matchup)
+    lr = 0.5
+    rand_level = 0.5
+    hidden_size = 25
 
-                current_results = {'lr': lr, 'rand_level': rand_level, 'hidden_size': hidden_size,
-                                           'generations': my_pop.generation_num, 'mean_pop_score': my_pop.prev_gen_scores.mean(),
-                                           'best_score_in_pop': my_pop.prev_gen_scores.max()}
-                print(current_results)
-                results.append(current_results)
-    pd.DataFrame(results).to_csv('./optimization_results.csv', index=False)
+    TicTacToeMaker = GameMaker(TicTacToe, board_dims=example_dims)
+    my_model = get_example_model(hidden_size=hidden_size)
+    my_pop = Population(n_agents, model=my_model,
+                        update_method='grad',
+                        game_maker=TicTacToeMaker)
+    my_pop.score_and_evolve(games_per_matchup=games_per_matchup, n_gens=51)
+    my_pop.save_best_model(model_fname)
+    best_model_round_1 = load_model(model_fname)
+
+    my_pop_2 = Population(n_agents, model=best_model_round_1, update_method='grad',
+                          game_maker=TicTacToeMaker, evolution_lr=lr, rand_level=rand_level,
+                          use_weights_of_passed_model=True)
+    my_pop_2.score_and_evolve(opponents=[random_open_square_player()],
+                            games_per_matchup=games_per_matchup,
+                            n_gens=11)
     print('Done')

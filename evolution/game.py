@@ -1,5 +1,5 @@
 import numpy as np
-from time import time
+
 class BoardGame:
     def __init__(self, players, board_dims):
         self.players = players
@@ -34,6 +34,7 @@ class TicTacToe(BoardGame):
         for row in range(self.board_storage_dims[0]):
             if (self.board[row, :, player_id] == 1).all():
                 return True
+
         for col in range(self.board_storage_dims[1]):
             if (self.board[:, col, player_id] == 1).all():
                 return True
@@ -65,6 +66,7 @@ class TicTacToe(BoardGame):
 
 
 class GameMaker:
+    # Make this a better class. Takes # of games. Has something that returns scores
     def __init__(self, game_class, board_dims, n_players_per_game=2):
         self.game_class = game_class
         self.board_dims = board_dims
